@@ -22,28 +22,29 @@ async def fetch(session, url):
 
 
 async def download(session, url):
-    file_name = url.split('/')[-1]
-    print(f'start download {file_name}')
+    file_name = url.split('/')[-1].strip('\n')
+    print(f'start download {url}')
         
     async with session.get(url, headers=headers) as response:
         res = await response.read()
-        f = open(file_name, 'rb')
+        f = open('E:\\Documents\\ebooks\\'+file_name, 'wb')
         f.write(res)
         print(f'download complete {file_name}')
 
 
 async def main():
     jar = aiohttp.CookieJar(unsafe=True)
-    conn = aiohttp.TCPConnector(limit=3)
+    conn = aiohttp.TCPConnector(limit=10)
     async with aiohttp.ClientSession(cookie_jar=jar, connector=conn) as session:
         tasks = []
         books = ['/the-adventures-of-huckleberry-finn/', '/the-adventures-of-tom-sawyer/', '/aesops-fables/', '/agnes-grey/', '/alices-adventures-in-wonderland/', '/andersens-fairy-tales/', '/anna-karenina/', '/anne-of-green-gables/', '/around-the-world-in-80-days/', '/beyond-good-and-evil/', '/bleak-house/', '/the-brothers-karamazov/', '/a-christmas-carol/', '/crime-and-punishment/', '/david-copperfield/', '/down-and-out-in-paris-and-london/', '/dracula/', '/dubliners/', '/emma/', '/erewhon/', '/for-the-term-of-his-natural-life/', '/frankenstein/', '/great-expectations/', '/the-great-gatsby/', '/grimms-fairy-tales/', '/gullivers-travels/', '/heart-of-darkness/', '/the-hound-of-the-baskervilles/', '/the-idiot/', '/the-iliad/', '/the-island-of-doctor-moreau/', '/jane-eyre/', '/the-jungle-book/', '/kidnapped/', '/lady-chatterlys-lover/', '/the-last-of-the-mohicans/', '/the-legend-of-sleepy-hollow/', '/les-miserables/', '/little-women/', '/madame-bovary/',
                  '/the-merry-adventures-of-robin-hood/', '/the-metamorphosis/', '/middlemarch/', '/moby-dick/', '/1984/', '/northanger-abbey/', '/nostromo-a-tale-of-the-seaboard/', '/notes-from-the-underground/', '/the-odyssey/', '/of-human-bondage/', '/oliver-twist/', '/paradise-lost/', '/persuasion/', '/the-picture-of-dorian-gray/', '/pollyanna/', '/the-portrait-of-a-lady/', '/a-portrait-of-the-artist-as-a-young-man/', '/pride-and-prejudice/', '/the-prince/', '/robinson-crusoe/', '/the-scarlet-pimpernel/', '/sense-and-sensibility/', '/sons-and-lovers/', '/the-strange-case-of-dr-jekyll/', '/swanns-way/', '/a-tale-of-two-cities/', '/the-tales-of-mother-goose/', '/tarzan-of-the-apes/', '/tender-is-the-night/', '/tess-of-the-durbervilles/', '/the-thirty-nine-steps/', '/the-three-musketeers/', '/the-time-machine/', '/treasure-island/', '/the-trial/', '/ulysses/', '/utopia/', '/vanity-fair/', '/war-and-peace/', '/within-a-budding-grove/', '/women-in-love/', '/wuthering-heights/']
         books = open('book_url.txt')
         for book in books:
-            print(book)
+            if '.mobi' in book:
+                continue
             tasks.append(asyncio.ensure_future(
-                download(session, f'https://www.planetebook.com{book}')))
+                download(session, book.strip('\n'))))
         await asyncio.gather(*tasks)
 
 
