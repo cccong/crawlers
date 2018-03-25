@@ -24,13 +24,15 @@ async def fetch(session, url):
 async def download(session, url):
     file_name = url.split('/')[-1].strip('\n')
     print(f'start download {url}')
-        
+    # try:
     async with session.get(url, headers=headers) as response:
         res = await response.read()
         f = open('E:\\Documents\\ebooks\\'+file_name, 'wb')
         f.write(res)
         print(f'download complete {file_name}')
-
+    # except aiohttp.client_exceptions.ClientConnectorError as e:
+    #     print(f'failed url')
+    #     return url
 
 async def main():
     jar = aiohttp.CookieJar(unsafe=True)
@@ -45,7 +47,10 @@ async def main():
                 continue
             tasks.append(asyncio.ensure_future(
                 download(session, book.strip('\n'))))
-        await asyncio.gather(*tasks)
+        result = await asyncio.gather(*tasks)
+        error_file = open('ebook_errors.txt','w')
+        error_file.write('\n'.join(f for f in result if f))
+        print(result)
 
 
 loop = asyncio.get_event_loop()
